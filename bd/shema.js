@@ -5,18 +5,8 @@ const { gql } = require("apollo-server");
 // type Query guarda los datos en la funcion obtenerCursos
 
 const typeDefs = gql`
-  type Curso {
-    titulo: String
-  }
-  type Tecnologia {
-    tecnologia: String
-  }
-  input CursoInput {
-    tecnologia: String
-  }
   type Query {
-    obtenerCursos(input: CursoInput!): [Curso]
-    obtenerTecnologia: [Tecnologia]
+    obtenerCurso: String
   }
 `;
 

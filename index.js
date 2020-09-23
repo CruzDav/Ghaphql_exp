@@ -2,6 +2,10 @@ const { ApolloServer } = require("apollo-server");
 const typeDefs = require(`./bd/shema`);
 const resolvers = require(`./bd/resolvers`);
 
+const conectarDB = require("./config/db"); // declarar importar archivo de DB
+//CONECTAR A LA BASE DE DATOS
+conectarDB();
+
 //servidor
 const server = new ApolloServer({
   typeDefs, //Registro de los  typesDefs

@@ -12,6 +12,8 @@
   "dependencies": {
     "apollo": "^2.31.0",
     "apollo-server": "^2.18.0",
+    "dotenv": "^8.2.0",
+    "mongoose": "^5.10.6",
     "server": "^1.0.30"
   },
   "devDependencies": {
