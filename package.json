@@ -1,0 +1,20 @@
+{
+  "name": "graphqlcurso",
+  "version": "1.0.0",
+  "description": "Curso de GraphQL",
+  "main": "index.js",
+  "scripts": {
+    "start": "node .",
+    "dev": "nodemon ."
+  },
+  "author": "DAVID",
+  "license": "ISC",
+  "dependencies": {
+    "apollo": "^2.31.0",
+    "apollo-server": "^2.18.0",
+    "server": "^1.0.30"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
