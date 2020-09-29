@@ -17,6 +17,26 @@ const typeDefs = gql`
     token: String
   }
 
+  type Producto {
+    id: ID
+    nombre: String
+    existencia: Int
+    precio: Float
+    creado: String
+  }
+
+  type Clientes {
+    id: ID
+    nombre: String
+    apellido: String
+    empresa: String
+    email: String
+    telefono: Int
+    vendedor: ID
+  }
+
+  ##########################################3
+
   input UsuarioInput {
     nombre: String!
     apellido: String!
@@ -29,12 +49,53 @@ const typeDefs = gql`
     password: String!
   }
 
-  type Query {
-    obtenerUsuario(token: String!): Usuario
+  input ProductoInput {
+    nombre: String!
+    existencia: Int!
+    precio: Float!
   }
+
+  input ClientesInput {
+    nombre: String!
+    apellido: String!
+    empresa: String!
+    email: String!
+    telefono: String
+  }
+
+  ##########################################  CONSULTAR  #################################################
+
+  type Query {
+    ####  USUARIOS  ####
+
+    obtenerUsuario(token: String!): Usuario
+
+    ####  PRODUSTOS  ####
+
+    obtenerProductos: [Producto]
+
+    ###------ Obteniendo informacion de un solo producto de la BD ----##
+
+    obtener_inf_Prod(id: ID!): Producto
+  }
+
+  ##########################################  AGREGAR #################################################
+
   type Mutation {
+    ####  USUARIOS  ####
+
     nuevoUsuario(input: UsuarioInput): Usuario
     autenticarUsuario(input: AutenticarInput): Token
+
+    ####  PRODUCTOS ####
+
+    nuevoProducto(input: ProductoInput): Producto
+    actualizar_datos_Producto(id: ID!, input: ProductoInput): Producto
+    eliminarProducto(id: ID!): String
+
+    ####  CLIENTES ####
+
+    nuevoCliente(input: ClientesInput): Clientes
   }
 `;
 
