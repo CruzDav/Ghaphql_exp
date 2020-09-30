@@ -50,3 +50,10 @@ const ClientesSchema = mongoose.Schema({
 });
 
 module.exports = mongoose.model("Cliente", ClientesSchema); //agregamos un modelo SCHEMA
+
+// ASIGNANDO UN VENDEDOR A CADA CLIENTE
+
+// al generar un nuevo usuario o vendedor , y luego de autenticarlo = logearlo = ingresarlo ,
+//se genera un token de vendedor,
+// ese token cifrado se asigna(copia pega) al agregar un nuevo cliente en el apartado HTTP HEADERS
+// y en la base de datos se registra un cliente con su respectico vendedor o usuario

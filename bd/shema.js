@@ -77,6 +77,10 @@ const typeDefs = gql`
     ###------ Obteniendo informacion de un solo producto de la BD ----##
 
     obtener_inf_Prod(id: ID!): Producto
+
+    ## ----obteniendo todos los CLIENTES ----
+
+    obtenerClientes: [Clientes]
   }
 
   ##########################################  AGREGAR #################################################

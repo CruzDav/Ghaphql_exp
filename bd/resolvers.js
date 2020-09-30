@@ -7,6 +7,7 @@ const bcrypts = require("bcryptjs"); //comando pafa encriptar
 const jwt = require("jsonwebtoken"); //modulo constante para para autenticar verificar token, id de usuarios
 const { error } = require("server/router");
 const { Error } = require("mongoose");
+const Clientes = require("../models/Clientes");
 require("dotenv").config({ path: "variables.env" });
 
 const crearToken = (usuario, secreta, expiresIn) => {
@@ -48,6 +49,17 @@ const resolvers = {
         throw new Error("PRODUCTO NO EXISTE EN DB");
       }
       return producto;
+    },
+
+    //  *** OBTENER TODOS LOS CIENTES***
+    obtenerClientes: async () => {
+      try {
+        //   OBTIENE DATOS DE PRODUCTOS
+        const clientes = await Clientes.find({});
+        return clientes;
+      } catch (error) {
+        console.log(error);
+      }
     },
 
     ///////////////////////////////////////   MUTATIONS  //////////////////////////////////////

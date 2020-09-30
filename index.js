@@ -15,9 +15,10 @@ const server = new ApolloServer({
   resolvers, //Registro de los  resolvers
   context: ({ req }) => {
     //console.log(req.headers["authorization"]);
-    const token = req.headers["authorization"] || "";
+    const token = req.headers["authorization"] || ""; //cuando autorizamos en el header guarda en token
 
     if (token) {
+      // si
       try {
         const usuario = jwt.verify(token, process.env.SECRETA);
         console.log(usuario);
