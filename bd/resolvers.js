@@ -62,6 +62,38 @@ const resolvers = {
       }
     },
 
+    // OBTENER CLIENTES DE UN VENDEDOR ESP.
+
+    obtenerClientesVendedor: async (_, {}, ctx) => {
+      try {
+        //
+        const clientes = await Clientes.find({
+          vendedor: ctx.usuario.id.toString(),
+        });
+        return clientes;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    //obtener cliente especifico con id
+
+    obtener_inf_Cliente: async (_, { id }, ctx) => {
+      //revisar si el producto existe
+
+      const cliente = await Clientes.findById(id); // encuentra por id
+
+      if (!cliente) {
+        throw new Error("PRODUCTO NO EXISTE EN DB");
+      }
+
+      if (cliente.vendedor.toString() !== ctx.usuario.id) {
+        //compara si la consulta la hace el mismo usuario quien dio de alta a ese id de vendedor
+        throw new Error("NO TIENES LAS CREDENCIALES ");
+      }
+      return cliente;
+    },
+
     ///////////////////////////////////////   MUTATIONS  //////////////////////////////////////
   },
   Mutation: {
@@ -173,13 +205,13 @@ const resolvers = {
       const { email } = input;
       //Revisar si el usuario ya esta logiado
 
-      const existeCliente = await Cliente.findOne({ email }); // para buscar un dato
+      const existeCliente = await Clientes.findOne({ email }); // para buscar un dato
 
       if (existeCliente) {
         throw new Error("El cliente ya existe");
       }
 
-      const nuevoCliente = new Cliente(input);
+      const nuevoCliente = new Clientes(input);
       nuevoCliente.vendedor = ctx.usuario.id; // para que se asigne automaticamente
 
       //********* */ //Guardaro en DB //*********** */
@@ -189,6 +221,30 @@ const resolvers = {
       } catch (error) {
         console.log("ERROR");
       }
+    },
+
+    actualizar_datos_Cliente: async (_, { id, input }, ctx) => {
+      //revisar si el producto existe
+
+      let cliente = await Clientes.findById(id); // encuentra por id y guarda en let
+
+      if (!cliente) {
+        throw new Error("CLIENTE NO EXISTE EN DB");
+      }
+
+      // verificicar si el vendedor es quien edita o actualiza
+      if (cliente.vendedor.toString() !== ctx.usuario.id) {
+        //compara si la consulta la hace el mismo usuario quien dio de alta a ese id de vendedor
+
+        throw new Error("NO TIENES LAS CREDENCIALES ");
+      }
+
+      // en caso de que si exista en db se guarda y con let se lo obtiene para luego reasignarle
+      cliente = await Clientes.findOneAndUpdate({ _id: id }, input, {
+        new: true,
+      });
+
+      return cliente;
     },
   },
 };

@@ -81,6 +81,8 @@ const typeDefs = gql`
     ## ----obteniendo todos los CLIENTES ----
 
     obtenerClientes: [Clientes]
+    obtenerClientesVendedor: [Clientes]
+    obtener_inf_Cliente(id: ID!): Clientes
   }
 
   ##########################################  AGREGAR #################################################
@@ -100,6 +102,7 @@ const typeDefs = gql`
     ####  CLIENTES ####
 
     nuevoCliente(input: ClientesInput): Clientes
+    actualizar_datos_Cliente(id: ID!, input: ClientesInput): Clientes
   }
 `;
 
