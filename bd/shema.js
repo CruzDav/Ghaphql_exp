@@ -35,7 +35,22 @@ const typeDefs = gql`
     vendedor: ID
   }
 
-  ##########################################3
+  type Pedido {
+    id: ID
+    pedido: [PedidoGrupo]
+    totalapagar: Float
+    cliente: ID
+    vendedor: ID
+    fecha: String
+    estado: EstadoPedido
+  }
+
+  type PedidoGrupo {
+    id: ID
+    cantidad: Int
+  }
+
+  ##########################################
 
   input UsuarioInput {
     nombre: String!
@@ -63,6 +78,24 @@ const typeDefs = gql`
     telefono: String
   }
 
+  input PedidoProductoInput { ## campos q tiene ese arreglo pedido
+    id: ID
+    cantidad: Int
+  }
+
+  input PedidoInput {
+    pedido: [PedidoProductoInput] ##-- Pedido es un arreglo(Array) por lo tanto tbm habra input tipo ARREGLO{}
+    totalapagar: Float!
+    cliente: ID!
+    estado: EstadoPedido
+  }
+
+  enum EstadoPedido { ##--- Defice que solo que campos va a asignarce en Estadopedido
+    PENDIENTE
+    COMPLETADO
+    CANCELADO
+  }
+
   ##########################################  CONSULTAR  #################################################
 
   type Query {
@@ -78,11 +111,18 @@ const typeDefs = gql`
 
     obtener_inf_Prod(id: ID!): Producto
 
+    ####  CLIENTES  ####
+
     ## ----obteniendo todos los CLIENTES ----
 
     obtenerClientes: [Clientes]
     obtenerClientesVendedor: [Clientes]
     obtener_inf_Cliente(id: ID!): Clientes
+
+    ####  PEDIDOS  ####
+    obtenerPedidos: [Pedido]
+    obtenerPedidosVendedor: [Pedido]
+    obtener_Pedido_especifico(id: ID!): Pedido
   }
 
   ##########################################  AGREGAR #################################################
@@ -103,6 +143,11 @@ const typeDefs = gql`
 
     nuevoCliente(input: ClientesInput): Clientes
     actualizar_datos_Cliente(id: ID!, input: ClientesInput): Clientes
+    eliminarCliente(id: ID!): String
+
+    ####  PEDIDOS ####
+
+    nuevoPedido(input: PedidoInput): Pedido
   }
 `;
 

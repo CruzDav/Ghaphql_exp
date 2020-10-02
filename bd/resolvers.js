@@ -1,6 +1,7 @@
 const Usuario = require("../models/Usuarios"); //obteniendo todos los metodos de mongos para insertar el registro
 const Producto = require("../models/Productos");
 const Cliente = require("../models/Clientes");
+const Pedidos = require("../models/Pedidos");
 
 const bcrypts = require("bcryptjs"); //comando pafa encriptar
 //const { exists } = require("../models/Usuarios");
@@ -19,11 +20,16 @@ const crearToken = (usuario, secreta, expiresIn) => {
 //****************************RESOLVRES******************** son funciones de reultados buscados en schema
 
 const resolvers = {
+  //
   Query: {
     obtenerUsuario: async (_, { token }) => {
       //   OBTIENE id de usuario
-      const usuarioID = await jwt.verify(token, process.env.SECRETA); //toma el token y si es valido gyarda enusuarioID
-      return usuarioID;
+      try {
+        const usuarioID = await jwt.verify(token, process.env.SECRETA); //toma el token y si es valido gyarda enusuarioID
+        return usuarioID;
+      } catch (error) {
+        console.log(error);
+      }
     },
 
     // Oteniendo todos los Productos de DB
@@ -94,8 +100,49 @@ const resolvers = {
       return cliente;
     },
 
-    ///////////////////////////////////////   MUTATIONS  //////////////////////////////////////
+    // obtener todos los pedidos
+
+    obtenerPedidos: async () => {
+      try {
+        //   OBTIENE DATOS DE PEDIDOS
+        const pedidos = await Pedidos.find({});
+        return pedidos;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    obtenerPedidosVendedor: async (_, {}, ctx) => {
+      console.log("****************************");
+      console.log(ctx);
+      try {
+        //   OBTIENE DATOS DE PEDIDOS
+        const pedidos = await Pedidos.find({ vendedor: ctx.usuario.id }); //obtiene todos lis usuarios de el vendedor
+        return pedidos;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    obtener_Pedido_especifico: async (_, { id }, ctx) => {
+      //verificar si pedido existe o no
+      const pedido = await Pedidos.findById(id);
+      if (!pedido) {
+        throw new Error("NO EXISTE ESTE PEDIDO EN BD");
+      }
+
+      //  solo quien lo creo puede verlo
+      if (pedido.vendedor.toString() !== ctx.usuario.id) {
+        // ingresa a la db de pedido, consigue vendedor, lo hace string si es diferente al usuario que esta autenticado=es un error o trampajj
+
+        throw new Error("NO TIENES LAS CREDENCIALES");
+      }
+      return pedido;
+    },
   },
+
+  ///////////////////////////////////////   MUTATIONS  //////////////////////////////////////
+
   Mutation: {
     nuevoUsuario: async (_, { input }) => {
       const { email, password } = input;
@@ -181,7 +228,7 @@ const resolvers = {
       return producto;
     },
 
-    // ********************************** Eiminar Productos de DB
+    // ******** Eiminar Productos de DB
 
     eliminarProducto: async (_, { id }) => {
       //revisar si el producto existe
@@ -245,6 +292,83 @@ const resolvers = {
       });
 
       return cliente;
+    },
+
+    //Eliminando clientes
+
+    eliminarCliente: async (_, { id }, ctx) => {
+      //revisar si el producto existe
+
+      let cliente = await Cliente.findById(id); // encuentra por id y guarda en let
+
+      if (!cliente) {
+        throw new Error("CLIENTE NO EXISTE EN DB");
+      }
+
+      // verificicar si el vendedor es quien ELIMINA
+      if (cliente.vendedor.toString() !== ctx.usuario.id) {
+        //compara si la consulta la hace el mismo usuario quien dio de alta a ese id de vendedor
+
+        throw new Error("NO TIENES LAS CREDENCIALES ");
+      }
+
+      //Eliminar
+      await Cliente.findOneAndDelete({ _id: id });
+      return "CLIENTE ELIMINADO DE DB";
+    },
+
+    // **** CLIENTES *****//
+
+    nuevoPedido: async (_, { input }, ctx) => {
+      const { cliente } = input; //solo obtiene dato cliente del arreglo input !!!!!!!!!!!!!!!!
+
+      // verificar si cliente existe o no
+      let clienteExiste = await Clientes.findById(cliente); // encuentra por cliente y guarda en let
+
+      if (!clienteExiste) {
+        throw new Error("CLIENTE NO EXISTE EN DB");
+      }
+      console.log("------------------>cliente");
+      console.log(clienteExiste);
+      console.log("------------------>cliente");
+      //verificar si el usuarioes es quien dio alta al cliente
+
+      if (clienteExiste.vendedor.toString() !== ctx.usuario.id) {
+        //compara si la consulta la hace el mismo usuario quien dio de alta a ese id de vendedor
+
+        throw new Error("NO TIENES LAS CREDENCIALES ");
+      }
+
+      // verificar si hay priductos en stock
+
+      for await (const articulo of input.pedido) {
+        // el for obtiene TODOS(bucle) los productos solicitados // guarda arreglo(input.pedido) en articulo
+        const { id, cantidad } = articulo; // obtiene id y cantidad del pedido
+        const producto = await Producto.findById(id); // busca el id y guarda en producto
+
+        if (cantidad > producto.existencia) {
+          // si es mayor a la existencia de cantidad en stock
+          throw new Error(
+            `EL ARTICULO: ${producto.nombre} excede la cantida disponible es stock`
+          );
+        } else {
+          //restar la cantidad a lo disponible
+          producto.existencia = producto.existencia - cantidad;
+          await producto.save();
+        }
+
+        //crear un nuevo pedido
+
+        const nuevoPedido = new Pedidos(input);
+
+        // asignar un vendedor
+
+        nuevoPedido.vendedor = ctx.usuario.id;
+        //Guardar en BD
+
+        const resultado = await nuevoPedido.save();
+        return resultado;
+      }
     },
   },
 };
