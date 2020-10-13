@@ -9,6 +9,7 @@ const jwt = require("jsonwebtoken"); //modulo constante para para autenticar ver
 const { error } = require("server/router");
 const { Error } = require("mongoose");
 const Clientes = require("../models/Clientes");
+const Productos = require("../models/Productos");
 require("dotenv").config({ path: "variables.env" });
 
 const crearToken = (usuario, secreta, expiresIn) => {
@@ -149,7 +150,7 @@ const resolvers = {
 
     // CONSULTAS AVANZADAS
 
-    mejoresClientes: async () => {
+    mejoresClientes: async () => {  // coge los cliente con pedidos completos, pagos 
       const clientes = await Pedidos.aggregate([
         { $match: { estado: "COMPLETADO" } }, // une algo en comun
         {
@@ -167,11 +168,55 @@ const resolvers = {
             as: "cliente",
           },
         },
+        {
+          $limit :10
+        },
+        {
+          $sort:{total: -1}
+        }
       ]);
 
       return clientes;
     },
+
+    mejoresVendedores:async()=>{
+      const vendedor = await Pedidos.aggregate([
+        { $match: { estado: "COMPLETADO" } }, // une algo en comun
+        {
+          $group: {
+            // agrupa
+            _id: "$vendedor",
+            total: { $sum: "$totalapagar" },
+          },
+        },
+        {
+          $lookup: {
+            from: "usuarios",
+            localField: "_id",
+            foreignField: "_id",
+            as: "vendedor"
+          },
+        },
+
+        {
+          $limit :3  
+        },
+        {
+          $sort:{total: -1}
+        }
+      ]);
+
+      return vendedor;
+    },
+
+
+    buscar_Producto:async(_,{text})=>{
+const producto = Productos.find({$text:{$search:text}}).limit(10)
+return producto;
+    
   },
+},
+
 
   ///////////////////////////////////////   MUTATIONS  //////////////////////////////////////
 
