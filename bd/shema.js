@@ -50,6 +50,11 @@ const typeDefs = gql`
     cantidad: Int
   }
 
+  type TopCliente {
+    total: Float
+    cliente: [Clientes]
+  }
+
   ##########################################
 
   input UsuarioInput {
@@ -85,8 +90,8 @@ const typeDefs = gql`
 
   input PedidoInput {
     pedido: [PedidoProductoInput] ##-- Pedido es un arreglo(Array) por lo tanto tbm habra input tipo ARREGLO{}
-    totalapagar: Float!
-    cliente: ID!
+    totalapagar: Float
+    cliente: ID
     estado: EstadoPedido
   }
 
@@ -120,9 +125,15 @@ const typeDefs = gql`
     obtener_inf_Cliente(id: ID!): Clientes
 
     ####  PEDIDOS  ####
+
     obtenerPedidos: [Pedido]
     obtenerPedidosVendedor: [Pedido]
     obtener_Pedido_especifico(id: ID!): Pedido
+    obtenerPedidos_segunEstado(estado: String!): [Pedido]
+
+    ### BUSQUEDAS AVANZADAS ###
+
+    mejoresClientes: [TopCliente]
   }
 
   ##########################################  AGREGAR #################################################
@@ -148,6 +159,8 @@ const typeDefs = gql`
     ####  PEDIDOS ####
 
     nuevoPedido(input: PedidoInput): Pedido
+    actualizar_Pedido(id: ID!, input: PedidoInput): Pedido
+    eliminar_Pedido(id: ID!): String
   }
 `;
 
